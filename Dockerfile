@@ -6,13 +6,15 @@ ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 
+ENV VERSION=LATEST
+ENV SERVER_PORT=19132
+
+EXPOSE $SERVER_PORT/udp
+
 RUN --mount=target=/build,source=build /build/install-packages
 
 ARG BOX64_PACKAGE=box64
 RUN --mount=target=/build,source=build BOX64_PACKAGE=$BOX64_PACKAGE /build/setup-arm64
-
-EXPOSE 19132/udp
-
 VOLUME ["/data"]
 
 WORKDIR /data
@@ -51,13 +53,5 @@ COPY *.sh /opt/
 
 COPY property-definitions.json /etc/bds-property-definitions.json
 COPY bin/* /usr/local/bin/
-
-# Available versions listed at
-# https://minecraft.wiki/w/Bedrock_Edition_1.11.0
-# https://minecraft.wiki/w/Bedrock_Edition_1.12.0
-# https://minecraft.wiki/w/Bedrock_Edition_1.13.0
-# https://minecraft.wiki/w/Bedrock_Edition_1.14.0
-ENV VERSION=LATEST \
-    SERVER_PORT=19132
 
 HEALTHCHECK --start-period=1m CMD /usr/local/bin/mc-monitor status-bedrock --host 127.0.0.1 --port $SERVER_PORT
